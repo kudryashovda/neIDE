@@ -4,6 +4,7 @@ Basically it is a notepad with only one button - "Run" and output area catching
 stdout and stderr streams during file compilation and execution. Simple, fast and
 lightweight. Can be used as C++ primitive code checker without opening 
 a powerful IDE like VS or sending your code to online services like godbolt.org.
+Currently only black theme is available but also a code syntax highlight is enabled.
 
 ![](./img/screenshot.png)
 
