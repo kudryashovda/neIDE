@@ -2,15 +2,18 @@
 #include "cpp_tpl.h"
 
 #include <wx/wx.h>
+#include <wx/stc/stc.h>
 
 #include <sstream>
 #include <fstream>
 #include <locale>
 #include <codecvt>
+#include <vector>
 
 using std::ofstream;
 using std::wstring_convert;
 using std::codecvt_utf8_utf16;
+using std::vector;
 
 class MyApp: public wxApp
 {
@@ -27,19 +30,25 @@ public:
 	{
 		SetSize(400, 400);
 		Center();
+		wxWindow::SetBackgroundColour("#343434");
+		wxWindow::SetForegroundColour("#B9BCD1");
+
 		auto *main_sizer = new wxBoxSizer(wxVERTICAL);
 		const auto main_window_size = this->GetSize();
 		const auto input_area_size = wxSize{ main_window_size.GetWidth(),
 			main_window_size.GetHeight() * 3 / 4 };
 		const auto output_area_size = wxSize{ main_window_size.GetWidth(),
 			main_window_size.GetHeight() / 4 };
-		input_area_ = new wxTextCtrl(this, wxID_ANY, wxT(""), wxDefaultPosition,
-				input_area_size, wxTE_MULTILINE | wxSTATIC_BORDER,
-				wxDefaultValidator, wxTextCtrlNameStr);
+		input_area_ = new wxStyledTextCtrl(this, wxID_ANY, wxDefaultPosition,
+				input_area_size, wxTE_MULTILINE | wxSTATIC_BORDER);
+		setupInputArea();
+
 		output_area_ =
 				new wxTextCtrl(this, wxID_ANY, wxT(""), wxDefaultPosition,
 						output_area_size, wxTE_MULTILINE | wxSTATIC_BORDER,
 						wxDefaultValidator, wxTextCtrlNameStr);
+		output_area_->SetBackgroundColour("#2F2F2F");
+		output_area_->SetForegroundColour("#B9BCD1");
 
 		auto *lbl_run = new wxStaticText(this, wxID_ANY, "Run");
 		const int padding_px = 10;
@@ -52,10 +61,13 @@ public:
 		lbl_run->Bind(wxEVT_LEFT_DOWN, &MyFrame::Run, this);
 	}
 
-	wxTextCtrl *input_area_{};
+	wxStyledTextCtrl *input_area_{};
 	wxTextCtrl *output_area_{};
 
 	void Run(wxMouseEvent & /*event*/);
+
+private:
+	void setupInputArea();
 };
 
 void MyFrame::Run(wxMouseEvent & /*event*/)
@@ -93,6 +105,51 @@ void MyFrame::Run(wxMouseEvent & /*event*/)
 
 	const auto [text_run, status_run] = run_cmd(tmp_bin_file);
 	output_area_->AppendText(converter.from_bytes(text_run));
+}
+
+void MyFrame::setupInputArea()
+{
+	string keywords{ "assert break continue else exit "
+					 "for if return try new while public const "
+					 "using int namespace enum case switch default "
+					 "goto do true false static operator char bool" };
+	input_area_->SetLexer(wxSTC_LEX_CPP);
+
+	input_area_->SetKeyWords(0, keywords);
+	input_area_->StyleClearAll();
+
+	input_area_->SetMarginWidth(0, 0);
+	input_area_->SetMarginWidth(1, 0);
+	input_area_->SetMarginWidth(2, 0);
+	input_area_->SetMarginWidth(3, 0);
+	input_area_->SetMarginWidth(4, 0);
+
+	const string common_fg{ "fore:#FFFFFF" };
+	const string common_bg{ ",back:#2F2F2F" };
+	const string font{",face:helv,size:10"};
+
+	const string common_style = common_fg + common_bg + font;
+	const string keywords_style = "fore:#EB7171" + common_bg + font;
+	const string strings_style = "fore:#6A8759" + common_bg + font;
+	const string id_style = "fore:#B9BCD1" + common_bg + font;
+	const string num_style = "fore:#6897BB" + common_bg + font;
+	const string prepr_style = "fore:#BBB429" + common_bg + font;
+	input_area_->StyleSetSpec(wxSTC_STYLE_DEFAULT, common_style);
+	input_area_->StyleSetSpec(wxSTC_C_DEFAULT, common_style);
+	input_area_->StyleSetSpec(wxSTC_C_COMMENT, common_style);
+	input_area_->StyleSetSpec(wxSTC_C_COMMENTLINE, common_style);
+	input_area_->StyleSetSpec(wxSTC_C_COMMENTDOC, common_style);
+	input_area_->StyleSetSpec(wxSTC_C_NUMBER, num_style);
+	input_area_->StyleSetSpec(wxSTC_C_WORD, keywords_style);
+	input_area_->StyleSetSpec(wxSTC_C_STRING, strings_style);
+	input_area_->StyleSetSpec(wxSTC_C_CHARACTER, id_style);
+	input_area_->StyleSetSpec(wxSTC_C_PREPROCESSOR, prepr_style);
+	input_area_->StyleSetSpec(wxSTC_C_OPERATOR, id_style);
+	input_area_->StyleSetSpec(wxSTC_C_IDENTIFIER, id_style);
+	input_area_->StyleSetSpec(wxSTC_C_STRINGEOL, common_style);
+	input_area_->SetCaretForeground(wxColour("White"));
+
+	input_area_->Colourise(0, -1);
 }
 
 bool MyApp::OnInit()
