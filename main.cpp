@@ -134,11 +134,12 @@ void MyFrame::setupInputArea()
 	const string id_style = "fore:#B9BCD1" + common_bg + font;
 	const string num_style = "fore:#6897BB" + common_bg + font;
 	const string prepr_style = "fore:#BBB429" + common_bg + font;
+	const string comment_style = "fore:#808080" + common_bg + font;
 	input_area_->StyleSetSpec(wxSTC_STYLE_DEFAULT, common_style);
 	input_area_->StyleSetSpec(wxSTC_C_DEFAULT, common_style);
-	input_area_->StyleSetSpec(wxSTC_C_COMMENT, common_style);
-	input_area_->StyleSetSpec(wxSTC_C_COMMENTLINE, common_style);
-	input_area_->StyleSetSpec(wxSTC_C_COMMENTDOC, common_style);
+	input_area_->StyleSetSpec(wxSTC_C_COMMENT, comment_style);
+	input_area_->StyleSetSpec(wxSTC_C_COMMENTLINE, comment_style);
+	input_area_->StyleSetSpec(wxSTC_C_COMMENTDOC, comment_style);
 	input_area_->StyleSetSpec(wxSTC_C_NUMBER, num_style);
 	input_area_->StyleSetSpec(wxSTC_C_WORD, keywords_style);
 	input_area_->StyleSetSpec(wxSTC_C_STRING, strings_style);
@@ -147,6 +148,7 @@ void MyFrame::setupInputArea()
 	input_area_->StyleSetSpec(wxSTC_C_OPERATOR, id_style);
 	input_area_->StyleSetSpec(wxSTC_C_IDENTIFIER, id_style);
 	input_area_->StyleSetSpec(wxSTC_C_STRINGEOL, common_style);
+	input_area_->StyleSetSpec(wxSTC_C_REGEX, common_style);
 	input_area_->SetCaretForeground(wxColour("White"));
 
 	input_area_->Colourise(0, -1);
