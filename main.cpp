@@ -90,7 +90,7 @@ void MyFrame::Run(wxMouseEvent & /*event*/)
 	run_cmd(move(clean_cmd));
 
 	ofstream file(tmp_cpp_file);
-	file << input_area_->GetValue();
+	file << converter.to_bytes(input_area_->GetValue());
 	file.close();
 
 	string cmpl_cmd{ "g++ --std=c++17 -Wall " };
